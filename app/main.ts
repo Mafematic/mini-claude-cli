@@ -55,7 +55,6 @@ async function main() {
     console.log(response.choices[0].message.content);
     throw new Error("no tool calls array");
   }
-  console.log(response.choices[0].message.tool_calls[0].function.name);
   let args = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
   const fileName = args.file_path;
   const contents = fs.readFileSync(fileName,'utf8');
