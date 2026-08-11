@@ -53,7 +53,7 @@ async function main() {
     response.choices[0].message.tool_calls.length === 0
   ) {
     console.log(response.choices[0].message.content);
-    throw new Error("no tool calls array");
+    return;
   }
   let args = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
   const fileName = args.file_path;
