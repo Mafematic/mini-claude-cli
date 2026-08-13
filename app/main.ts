@@ -32,19 +32,40 @@ async function main() {
       model: "anthropic/claude-haiku-4.5",
       messages: messages,
       tools: [{
-        "type": "function",
-        "function": {
-          "name": "Read",
-          "description": "Read and return the contents of a file",
-          "parameters": {
-            "type": "object",
-            "properties": {
-              "file_path": {
-                "type": "string",
-                "description": "The path to the file to read"
+        type: "function",
+        function: {
+          name: "Read",
+          description: "Read and return the contents of a file",
+          parameters: {
+            type: "object",
+            properties: {
+              file_path: {
+                type: "string",
+                description: "The path to the file to read"
               }
             },
-            "required": ["file_path"]
+            required: ["file_path"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "Write",
+          description: "Write to a file and return the contents of the file",
+          parameters: {
+            type: "object",
+            properties: {
+              file_path: {
+                type: "string",
+                description: "The path to the file to write to"
+              },
+              content: {
+                type: "string",
+                description: "The content to write to the file"
+              }
+            },
+            required: ["file_path", "content"]
           }
         }
       }]
@@ -66,11 +87,14 @@ async function main() {
 
     for (let toolCall of  response.choices[0].message.tool_calls) {
       let args = JSON.parse(toolCall.function.arguments);
+      const fileName = args.file_path;
       let contents = "";
 
       if (toolCall.function.name === "Read") {
-        const fileName = args.file_path;
         contents = fs.readFileSync(fileName, "utf8");
+      } else if (toolCall.function.name === "Write") {
+        fs.writeFileSync(fileName, args.content, "utf8");
+        contents = "File written successfully";
       } else {
         contents = `Unknown tool: ${toolCall.function.name}`;
       }
