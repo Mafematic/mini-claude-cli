@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import * as fs from 'fs';
+import { execSync } from "child_process";
 
 type ToolMessage = {
   role: "tool",
@@ -68,6 +69,23 @@ async function main() {
             required: ["file_path", "content"]
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "Bash",
+          description: "Execute a shell command",
+          parameters: {
+            type: "object",
+            required: ["command"],
+            properties: {
+              command: {
+                type: "string",
+                description: "The command to execute"
+              }
+            }
+          }
+        }
       }]
     });
 
@@ -85,7 +103,7 @@ async function main() {
       return;
     }
 
-    for (let toolCall of  response.choices[0].message.tool_calls) {
+    for (let toolCall of response.choices[0].message.tool_calls) {
       let args = JSON.parse(toolCall.function.arguments);
       const fileName = args.file_path;
       let contents = "";
@@ -95,6 +113,10 @@ async function main() {
       } else if (toolCall.function.name === "Write") {
         fs.writeFileSync(fileName, args.content, "utf8");
         contents = "File written successfully";
+      } else if (toolCall.function.name === "Bash") {
+        contents = execSync(args.command, {
+            encoding: "utf8",
+        });
       } else {
         contents = `Unknown tool: ${toolCall.function.name}`;
       }
