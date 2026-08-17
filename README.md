@@ -1,34 +1,44 @@
-[![progress-banner](https://backend.codecrafters.io/progress/claude-code/88f7fb93-aa33-43ce-899f-1e1be2a761df)](https://app.codecrafters.io/users/Mafematic?r=2qF)
+# mini-claude-cli
 
-This is a starting point for TypeScript solutions to the
-["Build Your own Claude Code" Challenge](https://codecrafters.io/challenges/claude-code).
+Small Claude CLI written in TypeScript.
 
-Claude Code is an AI coding assistant that uses Large Language Models (LLMs) to
-understand code and perform actions through tool calls. In this challenge,
-you'll build your own Claude Code from scratch by implementing an LLM-powered
-coding assistant.
+I built this mainly to understand how tool calling works in practice.
 
-Along the way you'll learn about HTTP RESTful APIs, OpenAI-compatible tool
-calling, agent loop, and how to integrate multiple tools into an AI assistant.
+At the moment it can:
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+* send prompts to Claude via OpenRouter
+* keep the conversation history
+* handle tool calls
+* read files
+* write files
+* run shell commands
 
-# Passing the first stage
+## Usage
 
-The entry point for your `claude-code` implementation is in `app/main.ts`. Study
-and uncomment the relevant code, and submit to pass the first stage:
-
-```sh
-codecrafters submit
+```bash
+./mini_claude.sh -p "Read README.md and summarize it"
 ```
 
-# Stage 2 & beyond
+Example:
 
-Note: This section is for stages 2 and beyond.
+```bash
+./mini_claude.sh -p "Write hello world to /tmp/test.txt and return the contents"
+```
 
-1. Ensure you have `bun (1.3)` installed locally.
-2. Run `./your_program.sh` to run your program, which is implemented in
-   `app/main.ts`.
-3. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
-   output will be streamed to your terminal.
+## How it works
+
+Claude can request a tool call, for example `Read`.
+
+The CLI executes the actual operation locally, adds the result back to the message history and sends everything back to Claude.
+
+This repeats until Claude returns a normal response without another tool call.
+
+## Tools
+
+`Read` — reads a file
+
+`Write` — writes to a file
+
+`Bash` — executes a shell command
+
+Still a work in progress.
